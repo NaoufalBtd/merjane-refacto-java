@@ -2,6 +2,7 @@ package com.nimbleways.springboilerplate.services.implementations;
 
 import java.time.LocalDate;
 
+import com.nimbleways.springboilerplate.services.facade.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -9,13 +10,13 @@ import com.nimbleways.springboilerplate.entities.Product;
 import com.nimbleways.springboilerplate.repositories.ProductRepository;
 
 @Service
-public class ProductService {
+public class ProductServiceImpl implements ProductService {
 
     @Autowired
     ProductRepository pr;
 
     @Autowired
-    NotificationService ns;
+    NotificationServiceImpl ns;
 
     public void notifyDelay(int leadTime, Product p) {
         p.setLeadTime(leadTime);
