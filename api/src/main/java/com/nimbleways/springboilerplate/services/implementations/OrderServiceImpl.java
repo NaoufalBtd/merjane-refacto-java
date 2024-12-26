@@ -1,6 +1,6 @@
 package com.nimbleways.springboilerplate.services.implementations;
 
-import com.nimbleways.springboilerplate.dto.product.ProcessOrderResponse;
+import com.nimbleways.springboilerplate.dto.order.ProcessOrderResponse;
 import com.nimbleways.springboilerplate.entities.Order;
 import com.nimbleways.springboilerplate.entities.Product;
 import com.nimbleways.springboilerplate.repositories.OrderRepository;

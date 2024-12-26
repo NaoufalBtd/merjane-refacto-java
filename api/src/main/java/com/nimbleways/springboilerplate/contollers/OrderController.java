@@ -1,6 +1,6 @@
 package com.nimbleways.springboilerplate.contollers;
 
-import com.nimbleways.springboilerplate.dto.product.ProcessOrderResponse;
+import com.nimbleways.springboilerplate.dto.order.ProcessOrderResponse;
 import com.nimbleways.springboilerplate.services.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
