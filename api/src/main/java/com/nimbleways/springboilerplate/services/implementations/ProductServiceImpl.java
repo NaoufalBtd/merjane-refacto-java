@@ -20,8 +20,50 @@ public class ProductServiceImpl implements ProductService {
     private NotificationService notificationService;
 
     @Override
-    public void notifyDelay(int leadTime, Product product) {
-        validateProduct(product);
+    public void handleNormalProduct(Product product) {
+        if (product.getAvailable() > 0) {
+            product.setAvailable(product.getAvailable() - 1);
+            productRepository.save(product);
+        } else {
+            int leadTime = product.getLeadTime();
+            if (leadTime > 0) {
+                notifyDelay(leadTime, product);
+            }
+        }
+    }
+
+    @Override
+    public void handleSeasonalProduct(Product product) {
+        LocalDate now = LocalDate.now();
+        if (isInSeason(product) && product.getAvailable() > 0) {
+            product.setAvailable(product.getAvailable() - 1);
+            productRepository.save(product);
+        } else {
+            handleSeasonalProductLogic(product);
+        }
+    }
+
+    @Override
+    public void handleExpiredProduct(Product product) {
+        if (product.getAvailable() > 0 && !isExpired(product)) {
+            product.setAvailable(product.getAvailable() - 1);
+            productRepository.save(product);
+        } else {
+            notificationService.sendExpirationNotification(product.getName(), product.getExpiryDate());
+            handleExpiredProductLogic(product);
+        }
+    }
+
+    private boolean isInSeason(Product product) {
+        LocalDate now = LocalDate.now();
+        return now.isAfter(product.getSeasonStartDate()) && now.isBefore(product.getSeasonEndDate());
+    }
+
+    private boolean isExpired(Product product) {
+        return LocalDate.now().isAfter(product.getExpiryDate());
+    }
+
+    private void notifyDelay(int leadTime, Product product) {
         try {
             product.setLeadTime(leadTime);
             productRepository.save(product);
@@ -32,39 +74,18 @@ public class ProductServiceImpl implements ProductService {
         }
     }
 
-    @Override
-    public void handleSeasonalProduct(Product product) {
-        validateProduct(product);
-        try {
-            LocalDate now = LocalDate.now();
-            if (now.plusDays(product.getLeadTime()).isAfter(product.getSeasonEndDate())) {
-                markOutOfStock(product, "Season has ended");
-            } else if (product.getSeasonStartDate().isAfter(now)) {
-                markOutOfStock(product, "Season not started yet");
-            } else {
-                notifyDelay(product.getLeadTime(), product);
-            }
-        } catch (Exception e) {
-            System.err.println("Failed to handle seasonal product: " + product.getName());
-            throw new RuntimeException("Failed to handle seasonal product", e);
+    private void handleSeasonalProductLogic(Product product) {
+        if (LocalDate.now().plusDays(product.getLeadTime()).isAfter(product.getSeasonEndDate())) {
+            markOutOfStock(product, "Season has ended");
+        } else if (product.getSeasonStartDate().isAfter(LocalDate.now())) {
+            markOutOfStock(product, "Season not started yet");
+        } else {
+            notifyDelay(product.getLeadTime(), product);
         }
     }
 
-    @Override
-    public void handleExpiredProduct(Product product) {
-        validateProduct(product);
-        try {
-            if (product.getAvailable() > 0 && product.getExpiryDate().isAfter(LocalDate.now())) {
-                product.setAvailable(product.getAvailable() - 1);
-            } else {
-                notificationService.sendExpirationNotification(product.getName(), product.getExpiryDate());
-                markOutOfStock(product, "Product expired");
-            }
-            productRepository.save(product);
-        } catch (Exception e) {
-            System.err.println("Failed to handle expired product: " + product.getName());
-            throw new RuntimeException("Failed to handle expired product", e);
-        }
+    private void handleExpiredProductLogic(Product product) {
+        markOutOfStock(product, "Product expired");
     }
 
     private void markOutOfStock(Product product, String reason) {
@@ -72,7 +93,6 @@ public class ProductServiceImpl implements ProductService {
             product.setAvailable(0);
             productRepository.save(product);
             notificationService.sendOutOfStockNotification(product.getName() + " (" + reason + ")");
-            System.out.println("Product marked out of stock: " + product.getName() + " (" + reason + ")");
         } catch (Exception e) {
             System.err.println("Failed to mark product as out of stock: " + product.getName());
             throw new RuntimeException("Failed to mark product as out of stock", e);
