@@ -36,7 +36,7 @@ public class OrderServiceImpl implements OrderService {
     private void processProduct(Product product) {
         switch (product.getType()) {
             case "NORMAL":
-                handleNormalProduct(product);
+                productService.handleNormalProduct(product);
                 break;
             case "SEASONAL":
                 productService.handleSeasonalProduct(product);
@@ -49,11 +49,4 @@ public class OrderServiceImpl implements OrderService {
         }
     }
 
-    private void handleNormalProduct(Product product) {
-        if (product.getAvailable() > 0) {
-            product.setAvailable(product.getAvailable() - 1);
-        } else {
-            productService.notifyDelay(product.getLeadTime(), product);
-        }
-    }
 }
