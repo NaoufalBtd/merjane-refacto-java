@@ -1,14 +1,14 @@
 package com.nimbleways.springboilerplate.mappers;
 
-import com.nimbleways.springboilerplate.dto.product.ProductDto;
+import com.nimbleways.springboilerplate.dto.product.ProductRequestDto;
 import com.nimbleways.springboilerplate.entities.Product;
 
 public class ProductMapper {
-    public static ProductDto toDto(Product product) {
+    public static ProductRequestDto toDto(Product product) {
         if (product == null) {
             return null;
         }
-        ProductDto dto = new ProductDto();
+        ProductRequestDto dto = new ProductRequestDto();
         dto.setId(product.getId());
         dto.setName(product.getName());
         dto.setAvailable(product.getAvailable());
@@ -20,7 +20,7 @@ public class ProductMapper {
         return dto;
     }
 
-    public static Product toEntity(ProductDto dto) {
+    public static Product toEntity(ProductRequestDto dto) {
         if (dto == null) {
             return null;
         }
