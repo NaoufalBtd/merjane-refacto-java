@@ -33,6 +33,7 @@ public class OrderServiceImpl implements OrderService {
         return new ProcessOrderResponse(order.getId());
     }
 
+    //todo: move to ProductService
     private void processProduct(Product product) {
         switch (product.getType()) {
             case "NORMAL":

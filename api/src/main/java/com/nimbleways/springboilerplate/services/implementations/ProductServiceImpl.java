@@ -63,6 +63,10 @@ public class ProductServiceImpl implements ProductService {
         return LocalDate.now().isAfter(product.getExpiryDate());
     }
 
+    /**
+     * Notifies the user of a delay for the product if the lead time is greater than 0.
+     * Saves the updated product with the new lead time.
+     */
     private void notifyDelay(int leadTime, Product product) {
         try {
             product.setLeadTime(leadTime);
@@ -74,6 +78,7 @@ public class ProductServiceImpl implements ProductService {
         }
     }
 
+    // Handles the logic for seasonal products when they are not available
     private void handleSeasonalProductLogic(Product product) {
         if (LocalDate.now().plusDays(product.getLeadTime()).isAfter(product.getSeasonEndDate())) {
             markOutOfStock(product, "Season has ended");
@@ -84,10 +89,12 @@ public class ProductServiceImpl implements ProductService {
         }
     }
 
+    // Handles expired product logic and marks it out of stock
     private void handleExpiredProductLogic(Product product) {
         markOutOfStock(product, "Product expired");
     }
 
+    // marks the product as out of stock and sends an out-of-stock notification
     private void markOutOfStock(Product product, String reason) {
         try {
             product.setAvailable(0);
@@ -99,6 +106,7 @@ public class ProductServiceImpl implements ProductService {
         }
     }
 
+    //todo: implement this method on the methods to centralize the validation
     private void validateProduct(Product product) {
         if (product == null) {
             System.err.println("Product is null");
